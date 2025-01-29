@@ -30,7 +30,7 @@ print()
 with ProgressBar():
     ds_clim = ds_clim.compute()
 
-dir = '../data'
+dir = './data'
 if not os.path.exists(dir):
     os.makedirs(dir)
 

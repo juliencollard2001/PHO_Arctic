@@ -13,7 +13,7 @@ bathy_compressed = bathy.coarsen(latitude=3, longitude=3, boundary='pad').mean()
 with ProgressBar():
     bathy_compressed = bathy_compressed.compute()
 
-dir = '../data'
+dir = './data'
 if not os.path.exists(dir):
     os.makedirs(dir)
 
