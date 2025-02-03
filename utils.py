@@ -16,6 +16,10 @@ def load_climatology_with_deptho():
     ds = xr.merge([ds, bathy_ds])
     return ds
 
+def load_surface_data():
+    ds = xr.open_dataset('data/surface.nc').load()
+    return ds
+
 def spherical_to_cartesian(lat, lon, rad=False):
     if not rad:
         lat = np.radians(lat)
