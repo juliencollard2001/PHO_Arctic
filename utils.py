@@ -105,9 +105,29 @@ def cross_section(
         cs_dss.append(cs_ds)
 
     cs_ds = xr.concat(cs_dss, dim='cross_section_idx', coords='minimal', compat='override')
-    cs_ds['dist'] = np.arange(N) * delta * np.pi * 6371 / N
+    dist = np.arange(N) * delta * np.pi * 6371 / N
+    cs_ds['dist'] = dist
     cs_ds['latitude'] = line_lats
     cs_ds['longitude'] = line_lons
+
+    derivee_lon = np.zeros(N)  #Dérivée selon un schéma centré
+    derivee_lat = np.zeros(N)  #Dérivée selon un schéma centré
+    for i in range(N) :
+        if i == 0 :
+            derivee_lat[i] = (line_lats[i + 1] - line_lats[i] ) / (dist[i + 1] - dist[i])
+            derivee_lon[i] = (line_lons[i + 1] - line_lons[i] ) / (dist[i + 1] - dist[i])
+        elif i == N-1 :
+            derivee_lat[i] = (line_lats[i] - line_lats[i - 1] ) / (dist[i] - dist[i - 1])
+            derivee_lon[i] = (line_lons[i] - line_lons[i - 1] ) / (dist[i] - dist[i - 1])
+        else :
+            derivee_lat[i] = (line_lats[i + 1] - line_lats[i - 1] ) / (dist[i + 1] - dist[i - 1])
+            derivee_lon[i] = (line_lons[i + 1] - line_lons[i - 1] ) / (dist[i + 1] - dist[i - 1])
+
+    normalization = np.sqrt(derivee_lon**2 + derivee_lat**2) #Facteur de normalisation
+
+    cs_ds['normal_meridional'] = ('cross_section_idx', derivee_lon / normalization)
+    cs_ds['normal_zonal'] = ('cross_section_idx', - derivee_lat / normalization)
+
 
     return cs_ds
 
