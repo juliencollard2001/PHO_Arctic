@@ -110,3 +110,49 @@ def cross_section(
     cs_ds['longitude'] = line_lons
 
     return cs_ds
+
+def vecteurs_coupe(
+       cs_ds : xr.Dataset,
+    ) -> xr.Dataset :
+
+    # PARTIE DÉTERMINATION VECTEURS UNITAIRES POUR DECRIRE LA SECTION
+        
+    dist = cs_ds['dist']
+    lat = cs_ds['latitude']
+    lon = cs_ds['longitude']
+
+    N = len(dist)
+    derivee_lon = np.zeros(N)  #Dérivée selon un schéma centré
+    derivee_lat = np.zeros(N)  #Dérivée selon un schéma centré
+    for i in range(N) :
+        if i == 0 :
+            derivee_lat[i] = (lat[i + 1] - lat[i] ) / (dist[i + 1] - dist[i])
+            derivee_lon[i] = (lon[i + 1] - lon[i] ) / (dist[i + 1] - dist[i])
+        elif i == N-1 :
+            derivee_lat[i] = (lat[i] - lat[i - 1] ) / (dist[i] - dist[i - 1])
+            derivee_lon[i] = (lon[i] - lon[i - 1] ) / (dist[i] - dist[i - 1])
+
+        else :
+            derivee_lat[i] = (lat[i + 1] - lat[i - 1] ) / (dist[i + 1] - dist[i - 1])
+            derivee_lon[i] = (lon[i + 1] - lon[i - 1] ) / (dist[i + 1] - dist[i - 1])
+
+    normalization = np.sqrt(derivee_lon**2 + derivee_lat**2) #Facteur de normalisation
+
+    vec_t = [derivee_lon, derivee_lat]/normalization
+    vec_n = [-1*derivee_lat, derivee_lon]/normalization
+
+    # PARTIE CALCUL VITESSES
+
+    u = cs_ds.U
+    v = cs_ds.V
+
+    #vitesse_t = np.zeros_like(u)
+    vitesse_n = np.zeros_like(u)
+
+    for i in range(np.shape(vitesse_n)[0]) :
+        #vitesse_t[i,:,:] = u[i,:,:]*vec_t[0][i] + v[i,:,:]*vec_t[1][i]    
+        vitesse_n[i,:,:] = u[i,:,:]*vec_n[0][i] + v[i,:,:]*vec_n[1][i]
+
+    cs_ds["vitesse transversale"] = (("cross_section_idx", "month", "depth"), vitesse_n)
+
+    return cs_ds
