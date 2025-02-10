@@ -2,6 +2,11 @@ lets go
 
 1) Climatology / Gyre / Currents / Wind...
 
+- moyenne globale / mars / septembre 
+- tout l'Arctic / Detroit de Fram / Gyre Beaufort 
+- wind / ocean / ice 
+- coupe T° / S / density 
+
 Georgia
 
 2) Sea-ice-air coupling... (cours !!!!!!!)
@@ -12,5 +17,23 @@ Georgia
 - ice dynamics related to currents and winds (??)
 
 3) Trends + Variability
+
+- EOF / PC  (glace , T ° ...)
+- regression : couplage avec d'autres propriétés
+- NAO , SIAO, PDO, ENSO .... ?
 Julien
 
+
+
+
+Telecharger :   
+- U10 (ERA 5)
+- v10 (ERA 5)
+- SLP  
+- T°2m (ERA 5)
+- Snow thickness 
+- Flux ??? 
+
+
+
+CHECK ONDES !
