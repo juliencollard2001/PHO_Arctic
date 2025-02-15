@@ -7,6 +7,7 @@ import cartopy.crs as ccrs # type: ignore
 import cartopy.feature as cfeature # type: ignore
 import cartopy.io.shapereader as shpreader # type: ignore
 from tqdm import tqdm # type: ignore
+import pandas as pd # type: ignore
 
 def load_climatology_with_deptho():
     ds = xr.open_dataset('data/climatology.nc').load()
@@ -17,7 +18,15 @@ def load_climatology_with_deptho():
     return ds
 
 def load_surface_data():
-    ds = xr.open_dataset('data/surface.nc').load()
+    ds = xr.open_dataset('data/surface.nc')
+    return ds
+
+def load_atm_data():
+    ds1 = xr.open_dataset('data/era5_1.nc')
+    ds2 = xr.open_dataset('data/era5_2.nc')
+    ds2['valid_time'] = ds1['valid_time']
+    ds = xr.merge([ds1, ds2])
+    ds = ds.rename({'valid_time': 'time'}).sortby('latitude').drop_vars(['number', 'expver'])
     return ds
 
 def spherical_to_cartesian(lat, lon, rad=False):
@@ -176,3 +185,27 @@ def vecteurs_coupe(
     cs_ds["vitesse transversale"] = (("cross_section_idx", "month", "depth"), vitesse_n)
 
     return cs_ds
+
+
+
+def get_climate_index():
+    idx_names = ['NAO', 'AO', 'PDO', 'SOI']
+    time = pd.date_range(start='2003-01-01', end='2023-12-01', freq='MS')
+
+    dss = []
+    
+
+    for name in idx_names:
+        df = pd.read_csv(f'data/{name}.csv', delim_whitespace=True, skiprows=0, names=['Year', 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+        df_melted = df.melt(id_vars=['Year'], var_name='Month', value_name='Value')
+        df_melted['Date'] = pd.to_datetime(df_melted[['Year', 'Month']].assign(DAY=1))
+        df_melted = df_melted.sort_values('Date').set_index('Date')
+        df_melted = df_melted.drop(columns=['Year', 'Month'])
+        
+        ds = xr.Dataset.from_dataframe(df_melted).rename_dims({'Date': 'time'}).rename_vars({'Value': name, 'Date': 'time'})
+        dss.append(ds)
+
+    ds = xr.merge(dss)
+    ds = ds.sel(time=slice('2003', '2023'))
+    return ds
+
