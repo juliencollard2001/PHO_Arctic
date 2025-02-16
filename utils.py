@@ -209,3 +209,43 @@ def get_climate_index():
     ds = ds.sel(time=slice('2003', '2023'))
     return ds
 
+
+
+def plot2(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, extent = [-180,180, 70, 90] ):
+    proj = ccrs.NorthPolarStereo()
+    proj_og = ccrs.PlateCarree()     
+
+    ds = load_climatology_with_deptho()
+    lon = ds.longitude
+    lat = ds.latitude  
+    # plot pour la fin d'hivers et la fin d'été vue d'en haut 
+
+    fig, ax = plt.subplots(1, 2, subplot_kw={'projection': proj}, figsize=(18, 18))
+
+    # Flatten the axes array for easier iteration
+    ax = ax.flatten()
+
+    # Plot the first subplot
+    pc = ax[0].pcolormesh(lon, lat, Mar, transform=proj_og, cmap=colour1, vmin = vmin, vmax = vmax)
+    contour = ax[0].contour(lon, lat, contMar, levels=[0.15, 0.5, 0.85], colors=colour2, linewidths=1, transform=proj_og)
+    ax[0].gridlines()
+    ax[0].set_extent(extent, crs=proj_og)
+    ax[0].set_title(f'{name} at the end of Boreal Winter')
+    ax[0].coastlines()
+
+    # Plot the second subplot
+    pc = ax[1].pcolormesh(lon, lat, Sept, transform=proj_og, cmap=colour1, vmin = vmin, vmax = vmax)
+    contour = ax[1].contour(lon, lat, contSept, levels=[0.15, 0.5, 0.85], colors=colour2, linewidths=1, transform=proj_og)
+    ax[1].clabel(contour, inline=True, fontsize=8)
+    ax[1].set_extent(extent, crs=proj_og)
+    ax[1].set_title(f'{name} at the end of Boreal Summer')
+    ax[1].coastlines()
+    ax[1].gridlines()
+
+    # Define the position for the colorbar [left, bottom, width, height]
+    cbar_ax = fig.add_axes([0.92, 0.42, 0.04, 0.3])  # Adjust these values as needed
+
+    # Add the colorbar to the specified axes
+    cbar = fig.colorbar(pc, cax=cbar_ax, orientation='vertical', label='Velocity [m/s]')
+    cbar.set_label(f'{name}', fontsize=12)
+
