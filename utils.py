@@ -255,16 +255,19 @@ def plot2(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, extent = 
 
 
 
-
-
-
-def plot2quiv(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, vitu3, vitu9, vitv3, vitv9 , extent = [-180,180, 70, 90], threshold = 0.01,scale = 1., shape = 50): 
+def plot2t(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, U3, V3, U9 ,V9 ,namequiv = 'wind', extent = [-180,180, 70, 90] ): 
     proj = ccrs.NorthPolarStereo()
     proj_og = ccrs.PlateCarree()     
 
     ds = load_climatology_with_deptho()
     lon = ds.longitude
     lat = ds.latitude  
+
+    if namequiv == 'wind' :
+        i = 3
+    else :
+        i = 20
+
     # plot pour la fin d'hivers et la fin d'été vue d'en haut 
 
     fig, ax = plt.subplots(1, 2, subplot_kw={'projection': proj}, figsize=(18, 18))
@@ -281,13 +284,12 @@ def plot2quiv(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, vitu3
     ax[0].set_title(f'{name} at the end of Boreal Winter')
     ax[0].coastlines()
 
-     # Add quiver plot for the first subplot
-        
-    U3ma =vitu3.where(Mar > threshold)
-    V3ma =vitv3.where(Sept > threshold)
-    U9ma =vitu9.where(Mar > threshold)
-    V9ma =vitv9.where(Sept > threshold)
-    ax[0].quiver(lon.values,lat.values, U3ma.values,V3ma.values, transform=proj_og, scale=scale, width=0.002, color='black',regrid_shape = shape)
+
+    #  Varying line width along a streamline
+    Mag3 = np.sqrt(U3**2 + V3**2)
+    lw = i *Mag3 / Mag3.max()
+    ax[0].streamplot(lon.values,lat.values, U3.values,V3.values, density=[2, 2], color='k',transform=proj_og, linewidth=lw.values)
+
 
     # Plot the second subplot
     pc = ax[1].pcolormesh(lon, lat, Sept, transform=proj_og, cmap=colour1, vmin = vmin, vmax = vmax)
@@ -297,14 +299,14 @@ def plot2quiv(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, vitu3
     ax[1].set_title(f'{name} at the end of Boreal Summer')
     ax[1].coastlines()
     ax[1].gridlines()
-    ax[1].quiver(lon.values, lat.values, U9ma.values, V9ma.values, transform=proj_og, scale=scale, width=0.002, color='black',regrid_shape =shape )
 
-    # Add a vector reference for the size
-    plt.quiverkey(ax[0].quiver(lon, lat, U3ma, V3ma, transform=proj_og, scale=scale, width=0.002, color='black', regrid_shape=shape), 
-                  X=0.9, Y=1.05, U=0.1, label='0.1 m/s', labelpos='E')
-    plt.quiverkey(ax[1].quiver(lon, lat, U9ma, V9ma, transform=proj_og, scale=scale, width=0.002, color='black', regrid_shape=shape), 
-                  X=0.9, Y=1.05, U=0.1, label='0.1 m/s', labelpos='E')
-    fig.suptitle(f'{name} Comparison at the End of Boreal Winter and Summer', fontsize=16,x = 0.52, y = 0.71)
+    #  Varying line width along a streamline
+    Mag9 = np.sqrt(U9**2 + V9**2)
+    lw = i *Mag9 / Mag9.max()
+    ax[1].streamplot(lon.values,lat.values, U9.values,V9.values, density=2, color='k',transform=proj_og, linewidth=lw.values)
+
+
+    fig.suptitle(f'{name} Comparison at the End of Boreal Winter and Summer with ' + f'{namequiv} streamlines', fontsize=16,x = 0.52, y = 0.71)
     
     # Define the position for the colorbar [left, bottom, width, height]
     cbar_ax = fig.add_axes([0.92, 0.32, 0.04, 0.35])  # Adjust these values as needed
