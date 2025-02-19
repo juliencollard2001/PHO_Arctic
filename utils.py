@@ -8,6 +8,7 @@ import cartopy.feature as cfeature # type: ignore
 import cartopy.io.shapereader as shpreader # type: ignore
 from tqdm import tqdm # type: ignore
 import pandas as pd # type: ignore
+import gsw
 
 def load_climatology_with_deptho():
     ds = xr.open_dataset('data/climatology.nc').load()
@@ -312,5 +313,67 @@ def plot2t(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, U3, V3, 
     cbar_ax = fig.add_axes([0.92, 0.32, 0.04, 0.35])  # Adjust these values as needed
     cbar = fig.colorbar(pc, cax=cbar_ax, orientation='vertical', label='Velocity [m/s]')
     cbar.set_label(f'{name}', fontsize=12)
+
+    plt.show()
+
+
+
+def properties(ds, zone):
+    if ds.month == 9:
+        name = 'summer'
+    else:
+        name = 'winter'
+    fig, axs = plt.subplots(6, 1, figsize=(15, 15))
+    axs.flatten()
+    
+    # Temperature
+    pc = axs[0].pcolormesh(ds.dist, ds.depth, ds['T'].values.T, cmap=cmo.thermal)
+    plt.colorbar(pc, ax=axs[0], label='Temperature [°C]')
+    axs[0].set_title('Temperature cross-section')
+
+    # Salinity
+    pc = axs[1].pcolormesh(ds.dist, ds.depth, ds['S'].values.T, cmap=cmo.haline)
+    plt.colorbar(pc, ax=axs[1], label='Salinity [PSU]')
+    axs[1].set_title('Salinity cross-section')
+
+    # Density
+    ds['rho'] = xr.apply_ufunc(gsw.rho_t_exact, ds['S'], ds['T'], ds.depth, dask='parallelized', output_dtypes=[float])
+    pc = axs[2].pcolormesh(ds.dist, ds.depth, ds['rho'].values.T, cmap=cmo.dense)
+    plt.colorbar(pc, ax=axs[2], label='Density [kg/m³]')
+    axs[2].set_title('Density cross-section')
+
+    cmap_min = -0.1
+    cmap_max = 0.1
+
+    # Vitesse transversale
+    pc = axs[3].pcolormesh(ds.dist, ds.depth, (ds['V'] * ds.normal_meridional + ds['U'] * ds.normal_zonal).values.T, cmap='seismic', vmin=cmap_min, vmax=cmap_max)
+    plt.colorbar(pc, ax=axs[3], label='m/s')
+    axs[3].set_title('Vitesse transversale cross-section')
+   
+    # V
+    pc = axs[4].pcolormesh(ds.dist, ds.depth, ds['V'].values.T, cmap='seismic', vmin=cmap_min, vmax=cmap_max)
+    plt.colorbar(pc, ax=axs[4], label='m/s')
+    axs[4].set_title('Meridional transport')
+
+    # U
+    pc = axs[5].pcolormesh(ds.dist, ds.depth, ds['U'].values.T, cmap='seismic', vmin=cmap_min, vmax=cmap_max)
+    plt.colorbar(pc, ax=axs[5], label='m/s')
+    axs[5].set_title('Zonal transport ')
+
+    for ax in axs:
+        ax.plot(ds.dist, ds['deptho'])
+        ax.set_xlabel('Distance [km]')
+        ax.set_ylabel('Depth [m]')
+        ax.set_ylim(0, 500)
+        ax.invert_yaxis()
+        ax.title.set_fontsize(16)
+        ax.xaxis.label.set_fontsize(12)
+        ax.yaxis.label.set_fontsize(14)
+        for label in (ax.get_xticklabels() + ax.get_yticklabels()):
+            label.set_fontsize(12)
+
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    plt.suptitle(f'Properties of the {zone} at the end of boreal {name}', fontsize=20)
+    
 
     plt.show()
