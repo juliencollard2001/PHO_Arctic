@@ -256,7 +256,7 @@ def plot2(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, extent = 
 
 
 
-def plot2t(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, U3, V3, U9 ,V9 ,namequiv = 'wind', extent = [-180,180, 70, 90] ): 
+def plot2quiv(Mar,Sept,contMar,contSept, U3, V3, U9 ,V9 ,colour1,vmin ,vmax, quiv = 'quiver' , colour2 ='red', colour3 = 'k', extent = [-180,180, 70, 90] ): 
     proj = ccrs.NorthPolarStereo()
     proj_og = ccrs.PlateCarree()     
 
@@ -264,16 +264,36 @@ def plot2t(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, U3, V3, 
     lon = ds.longitude
     lat = ds.latitude  
 
-    if namequiv == 'wind' :
-        i = 3
-    else :
-        i = 20
+    U3new =  U3 / np.cos(lat / 180 * np.pi)
+    Mag3 = np.sqrt(U3**2 + V3**2)
+    Renorm3 = Mag3 / np.sqrt(U3new**2 +V3**2)
 
-    # plot pour la fin d'hivers et la fin d'été vue d'en haut 
+    U9new = U9 / np.cos(lat / 180 * np.pi)
+    Mag9 = np.sqrt(U9**2 + V9**2)
+    Renorm9 = Mag9 / np.sqrt(U9new**2 +V9**2)
+    
+    if Mar.name == 'u10':
+        name = 'Wind speed [m/s]'
+    else :
+        name = 'Current velocities [m/s]'
+        
+    if U3.name == 'u10' :
+        i = 3
+        sca = 35
+        namequiv = 'wind speed [m/s]' 
+        rs = 30
+        uscale = 2.5
+        scalename = '2.5 m/s'
+
+    else :
+        i = 30
+        sca = 0.8
+        namequiv = 'current velocities [m/s]' 
+        rs = 35
+        uscale = 0.05
+        scalename = '5 cm/s'
 
     fig, ax = plt.subplots(1, 2, subplot_kw={'projection': proj}, figsize=(18, 18))
-
-    # Flatten the axes array for easier iteration
     ax = ax.flatten()
 
     # Plot the first subplot
@@ -285,12 +305,14 @@ def plot2t(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, U3, V3, 
     ax[0].set_title(f'{name} at the end of Boreal Winter')
     ax[0].coastlines()
 
-
-    #  Varying line width along a streamline
-    Mag3 = np.sqrt(U3**2 + V3**2)
-    lw = i *Mag3 / Mag3.max()
-    ax[0].streamplot(lon.values,lat.values, U3.values,V3.values, density=[2, 2], color='k',transform=proj_og, linewidth=lw.values)
-
+    if quiv == 'quiver':
+        Q1 = ax[0].quiver(lon, lat, U3new*Renorm3, V3*Renorm3,  transform=ccrs.PlateCarree(), scale= sca, width=0.002, color=colour3, regrid_shape=rs, angles='xy')
+        ax[0].quiverkey(Q1, X=0.85, Y=0.95, U=uscale, label=scalename, labelpos='E', transform=ax[0].transAxes)
+        streamlines = 'quivers'
+    else :
+        lw = i *Mag3 / Mag3.max()
+        ax[0].streamplot(lon,lat, U3new*Renorm3, V3*Renorm3,  density=2, color=colour3,transform=proj_og, linewidth=lw.values)
+        streamlines = 'streamlines'
 
     # Plot the second subplot
     pc = ax[1].pcolormesh(lon, lat, Sept, transform=proj_og, cmap=colour1, vmin = vmin, vmax = vmax)
@@ -301,13 +323,16 @@ def plot2t(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, U3, V3, 
     ax[1].coastlines()
     ax[1].gridlines()
 
-    #  Varying line width along a streamline
-    Mag9 = np.sqrt(U9**2 + V9**2)
-    lw = i *Mag9 / Mag9.max()
-    ax[1].streamplot(lon.values,lat.values, U9.values,V9.values, density=2, color='k',transform=proj_og, linewidth=lw.values)
+    if quiv == 'quiver':
+        Q2 = ax[1].quiver(lon, lat, U9new*Renorm9, V9*Renorm9,  transform=ccrs.PlateCarree(), scale= sca, width=0.002, color=colour3, regrid_shape=rs, angles='xy')
+        ax[1].quiverkey(Q2, X=0.85, Y=0.95, U=uscale, label=scalename, labelpos='E', transform=ax[1].transAxes)
+
+    else :
+        lw = i *Mag3 / Mag3.max()
+        ax[1].streamplot(lon,lat, U9new*Renorm9, V3*Renorm9,  density= 2, color=colour3,transform=proj_og, linewidth=lw.values)
 
 
-    fig.suptitle(f'{name} Comparison at the End of Boreal Winter and Summer with ' + f'{namequiv} streamlines', fontsize=16,x = 0.52, y = 0.71)
+    fig.suptitle(f'{name} Comparison at the End of Boreal Winter and Summer with ' + f'{namequiv}' + f'{streamlines}', fontsize=16,x = 0.52, y = 0.71)
     
     # Define the position for the colorbar [left, bottom, width, height]
     cbar_ax = fig.add_axes([0.92, 0.32, 0.04, 0.35])  # Adjust these values as needed
@@ -315,6 +340,7 @@ def plot2t(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, U3, V3, 
     cbar.set_label(f'{name}', fontsize=12)
 
     plt.show()
+
 
 
 
