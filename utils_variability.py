@@ -65,7 +65,8 @@ def fast_eof_analysis(eof_solver, da):
             eof_solver.eofs(eofscaling=2)[i], 
             transform=ccrs.PlateCarree(), 
             cmap=cmo.balance,
-            norm=colors.Normalize(vmin=-max_val, vmax=max_val),
+            vmin=-max_val, 
+            vmax=max_val
         )
         ax.set_title(f'EOF {i+1}')
     plt.colorbar(pcm, ax=axs, orientation='horizontal', shrink=0.8, label=da.units)
@@ -133,7 +134,8 @@ def project_on_field(anomalies, eof_solver):
             projection.sel(mode=i), 
             transform=ccrs.PlateCarree(), 
             cmap=cmo.balance,
-            norm=colors.Normalize(vmin=-max_val, vmax=max_val),
+            vmin=-max_val,
+            vmax=max_val
         )
         ax.set_title(f'EOF {i+1}')
     plt.colorbar(pcm, ax=axs, label=f'{anomalies.units}', orientation='horizontal', shrink=0.8)
