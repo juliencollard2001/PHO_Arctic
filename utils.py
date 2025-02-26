@@ -221,6 +221,11 @@ def plot2(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, extent = 
     lat = ds.latitude  
     # plot pour la fin d'hivers et la fin d'été vue d'en haut 
 
+    if 'depth' in Mar.coords:
+        print("Coordinate 'depth' exists in the dataset.")
+    else:
+        print("Coordinate 'depth' does not exist in the dataset.")
+
     fig, ax = plt.subplots(1, 2, subplot_kw={'projection': proj}, figsize=(18, 18))
 
     # Flatten the axes array for easier iteration
@@ -234,6 +239,9 @@ def plot2(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, extent = 
     ax[0].set_extent(extent, crs=proj_og)
     ax[0].set_title(f'{name} at the end of Boreal Winter')
     ax[0].coastlines()
+    ax[0].add_feature(cfeature.RIVERS)
+
+
 
     # Plot the second subplot
     pc = ax[1].pcolormesh(lon, lat, Sept, transform=proj_og, cmap=colour1, vmin = vmin, vmax = vmax)
@@ -243,6 +251,7 @@ def plot2(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, extent = 
     ax[1].set_title(f'{name} at the end of Boreal Summer')
     ax[1].coastlines()
     ax[1].gridlines()
+    ax[1].add_feature(cfeature.RIVERS)
 
     fig.suptitle(f'{name} Comparison at the End of Boreal Winter and Summer', fontsize=16,x = 0.52, y = 0.71)
     
@@ -264,14 +273,20 @@ def plot2quiv(Mar,Sept,contMar,contSept, U3, V3, U9 ,V9 ,colour1,vmin ,vmax, qui
     lon = ds.longitude
     lat = ds.latitude  
 
-    U3new =  U3 / np.cos(lat / 180 * np.pi)
+    V3new =  V3 * np.cos(lat / 180 * np.pi)
     Mag3 = np.sqrt(U3**2 + V3**2)
-    Renorm3 = Mag3 / np.sqrt(U3new**2 +V3**2)
+    Renorm3 = Mag3 / np.sqrt(U3**2 +V3new**2)
 
-    U9new = U9 / np.cos(lat / 180 * np.pi)
+    V9new = V9 * np.cos(lat / 180 * np.pi)
     Mag9 = np.sqrt(U9**2 + V9**2)
-    Renorm9 = Mag9 / np.sqrt(U9new**2 +V9**2)
-    
+    Renorm9 = Mag9 / np.sqrt(U9**2 +V9new**2)
+
+    U3 = U3.where(U3.latitude != 90)
+    V3new = V3new.where(V3.latitude != 90)
+
+    U9 = U9.where(U9.latitude != 90)
+    V9new = V9new.where(V9.latitude != 90)
+
     if Mar.name == 'u10':
         name = 'Wind speed [m/s]'
     else :
@@ -304,14 +319,16 @@ def plot2quiv(Mar,Sept,contMar,contSept, U3, V3, U9 ,V9 ,colour1,vmin ,vmax, qui
     ax[0].set_extent(extent, crs=proj_og)
     ax[0].set_title(f'{name} at the end of Boreal Winter')
     ax[0].coastlines()
+    ax[0].add_feature(cfeature.RIVERS)
+    
 
     if quiv == 'quiver':
-        Q1 = ax[0].quiver(lon, lat, U3new*Renorm3, V3*Renorm3,  transform=ccrs.PlateCarree(), scale= sca, width=0.002, color=colour3, regrid_shape=rs, angles='xy')
-        ax[0].quiverkey(Q1, X=0.85, Y=0.95, U=uscale, label=scalename, labelpos='E', transform=ax[0].transAxes)
+        Q1 = ax[0].quiver(lon, lat, U3*Renorm3, V3new*Renorm3,  transform=ccrs.PlateCarree(), scale= sca, width=0.002, color=colour3, regrid_shape=rs, angles='xy')
+        ax[0].quiverkey(Q1, X=0.90, Y=0.95, U=uscale, label=scalename, labelpos='E', transform=ax[0].transAxes)
         streamlines = 'quivers'
     else :
         lw = i *Mag3 / Mag3.max()
-        ax[0].streamplot(lon,lat, U3new*Renorm3, V3*Renorm3,  density=2, color=colour3,transform=proj_og, linewidth=lw.values)
+        ax[0].streamplot(lon,lat, U3*Renorm3, V3new*Renorm3,  density=2, color=colour3,transform=proj_og, linewidth=lw.values)
         streamlines = 'streamlines'
 
     # Plot the second subplot
@@ -322,17 +339,18 @@ def plot2quiv(Mar,Sept,contMar,contSept, U3, V3, U9 ,V9 ,colour1,vmin ,vmax, qui
     ax[1].set_title(f'{name} at the end of Boreal Summer')
     ax[1].coastlines()
     ax[1].gridlines()
+    ax[1].add_feature(cfeature.RIVERS)
 
     if quiv == 'quiver':
-        Q2 = ax[1].quiver(lon, lat, U9new*Renorm9, V9*Renorm9,  transform=ccrs.PlateCarree(), scale= sca, width=0.002, color=colour3, regrid_shape=rs, angles='xy')
-        ax[1].quiverkey(Q2, X=0.85, Y=0.95, U=uscale, label=scalename, labelpos='E', transform=ax[1].transAxes)
+        Q2 = ax[1].quiver(lon, lat, U9*Renorm9, V9new*Renorm9,  transform=ccrs.PlateCarree(), scale= sca, width=0.002, color=colour3, regrid_shape=rs, angles='xy')
+        ax[1].quiverkey(Q2, X=0.90, Y=0.95, U=uscale, label=scalename, labelpos='E', transform=ax[1].transAxes)
 
     else :
         lw = i *Mag3 / Mag3.max()
-        ax[1].streamplot(lon,lat, U9new*Renorm9, V3*Renorm9,  density= 2, color=colour3,transform=proj_og, linewidth=lw.values)
+        ax[1].streamplot(lon,lat, U9*Renorm9, V3new*Renorm9,  density= 2, color=colour3,transform=proj_og, linewidth=lw.values)
 
 
-    fig.suptitle(f'{name} Comparison at the End of Boreal Winter and Summer with ' + f'{namequiv}' + f'{streamlines}', fontsize=16,x = 0.52, y = 0.71)
+    fig.suptitle(f'{name} Comparison at the End of Boreal Winter and Summer with ' + f'{namequiv}' + f' {streamlines}', fontsize=16,x = 0.52, y = 0.71)
     
     # Define the position for the colorbar [left, bottom, width, height]
     cbar_ax = fig.add_axes([0.92, 0.32, 0.04, 0.35])  # Adjust these values as needed
