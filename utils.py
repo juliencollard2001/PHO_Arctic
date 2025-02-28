@@ -313,7 +313,7 @@ def plot2quiv(Mar,Sept,contMar,contSept, U3, V3, U9 ,V9 ,colour1,vmin ,vmax, qui
 
     # Plot the first subplot
     pc = ax[0].pcolormesh(lon, lat, Mar, transform=proj_og, cmap=colour1, vmin = vmin, vmax = vmax)
-    contour = ax[0].contour(lon, lat, contMar, levels=[0.15, 0.5, 0.85], colors=colour2, linewidths=1, transform=proj_og)
+    contour = ax[0].contour(lon, lat, contMar*100, levels=[15, 50, 85], colors=colour2, linewidths=1, transform=proj_og)
     ax[0].clabel(contour, inline=True, fontsize=8)
     ax[0].gridlines()
     ax[0].set_extent(extent, crs=proj_og)
@@ -333,7 +333,7 @@ def plot2quiv(Mar,Sept,contMar,contSept, U3, V3, U9 ,V9 ,colour1,vmin ,vmax, qui
 
     # Plot the second subplot
     pc = ax[1].pcolormesh(lon, lat, Sept, transform=proj_og, cmap=colour1, vmin = vmin, vmax = vmax)
-    contour = ax[1].contour(lon, lat, contSept, levels=[0.15, 0.5, 0.85], colors=colour2, linewidths=1, transform=proj_og)
+    contour = ax[1].contour(lon, lat, contSept*100,levels=[15, 50, 85] , colors=colour2, linewidths=1, transform=proj_og)
     ax[1].clabel(contour, inline=True, fontsize=8)
     ax[1].set_extent(extent, crs=proj_og)
     ax[1].set_title(f'{name} at the end of Boreal Summer')
@@ -346,8 +346,8 @@ def plot2quiv(Mar,Sept,contMar,contSept, U3, V3, U9 ,V9 ,colour1,vmin ,vmax, qui
         ax[1].quiverkey(Q2, X=0.90, Y=0.95, U=uscale, label=scalename, labelpos='E', transform=ax[1].transAxes)
 
     else :
-        lw = i *Mag3 / Mag3.max()
-        ax[1].streamplot(lon,lat, U9*Renorm9, V3new*Renorm9,  density= 2, color=colour3,transform=proj_og, linewidth=lw.values)
+        lw = i *Mag9 / Mag9.max()
+        ax[1].streamplot(lon,lat, U9*Renorm9, V9new*Renorm9,  density= 2, color=colour3,transform=proj_og, linewidth=lw.values)
 
 
     fig.suptitle(f'{name} Comparison at the End of Boreal Winter and Summer with ' + f'{namequiv}' + f' {streamlines}', fontsize=16,x = 0.52, y = 0.71)
