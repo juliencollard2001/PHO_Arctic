@@ -1,9 +1,17 @@
 import cdsapi
 
-dataset = "reanalysis-era5-single-levels"
+dataset = "reanalysis-carra-single-levels"
 request = {
-    "product_type": ["reanalysis"],
-    "variable": ["snow_depth"],
+    "domain": "east_domain",
+    "level_type": "surface_or_atmosphere",
+    "variable": [
+        "sea_ice_surface_temperature",
+        "sea_ice_thickness",
+        "snow_density",
+        "snow_on_ice_total_depth"
+    ],
+    "product_type": "analysis",
+    "time": ["00:00", "12:00"],
     "year": [
         "2003", "2004", "2005",
         "2006", "2007", "2008",
@@ -32,10 +40,7 @@ request = {
         "28", "29", "30",
         "31"
     ],
-    "time": ["00:00", "12:00"],
-    "data_format": "netcdf",
-    "download_format": "unarchived",
-    "area": [85.5, -0.5, 84.5, 0.5]
+    "data_format": "netcdf"
 }
 
 client = cdsapi.Client()
