@@ -23,8 +23,8 @@ dir = './data'
 if not os.path.exists(dir):
     os.makedirs(dir)
 
-if os.path.exists(dir + '/surface.nc'):
-    os.remove(dir + '/surface.nc')
+if os.path.exists(dir + '/surface_SIT.nc'):
+    os.remove(dir + '/surface_SIT.nc')
 
 with ProgressBar():
-    ds.to_netcdf(dir + '/surface.nc')
+    ds.to_netcdf(dir + '/surface_SIT.nc')
