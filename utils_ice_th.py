@@ -110,7 +110,7 @@ def ice_growth_rate(
     return rate
 
 def ice_thickness_th(
-        epaisseur_init,  #profil à temps initial
+        epaisseur,  #profil à temps initial
         t2m,    #np.array 
         fs, #flux surface
         snow_depth,
@@ -121,6 +121,8 @@ def ice_thickness_th(
     # Définition des variables
     deltat = 1/res # en jours/points
     N = int(res*duree)
+
+    epaisseur_init = epaisseur[0]
 
     thickness = np.ones(N)
     thickness[:] = 0
@@ -139,8 +141,11 @@ def ice_thickness_th(
             thickness[i] = 0   #On ne peut pas avoir une épaisseur négative
         if i > 0 :
             time[i] = time[i - 1] + deltat
-        if i%365 == 0 :
-            thickness[i] = epaisseur_init
+        if (i%(2*(365)) - 2*(365 - 365 // 6)) == 0:
+            thickness[i] = epaisseur[i]
+            thickness[i - 1] = np.nan
+        #if (i%(2*(365)) - 2*(365 - 365//2 - 365 // 6)) == 0 :
+        #    thickness[i] = np.nan
     
     return time, thickness
 
