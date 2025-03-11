@@ -100,7 +100,7 @@ def ice_growth_rate(
     #Top melt
     rate_top = 0
     if fs > 0 :
-        if epaisseur_snow < 0.01 : #Epaisseur snow suffisamment faible (non prise en compte ici)
+        if epaisseur_snow < 0.001 : #Epaisseur snow suffisamment faible (non prise en compte ici)
             if temp_top > freezing_temp :
                 rate_top = (-1/(rho*Latent))*fs   #Va dans le sens d'une compensation de la croissance de la glace, lorsqu'elle existe
         
@@ -139,6 +139,8 @@ def ice_thickness_th(
             thickness[i] = 0   #On ne peut pas avoir une épaisseur négative
         if i > 0 :
             time[i] = time[i - 1] + deltat
+        if i%365 == 0 :
+            thickness[i] = epaisseur_init
     
     return time, thickness
 

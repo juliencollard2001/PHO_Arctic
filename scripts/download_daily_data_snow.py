@@ -2,24 +2,22 @@ import cdsapi
 
 dataset = "reanalysis-carra-single-levels"
 request = {
-    "domain": "east_domain",
+    "domain": "west_domain",
     "level_type": "surface_or_atmosphere",
     "variable": [
         "sea_ice_surface_temperature",
-        "sea_ice_thickness",
         "snow_density",
         "snow_on_ice_total_depth"
     ],
     "product_type": "analysis",
-    "time": ["00:00", "12:00"],
+    "time": ["00:00"],
     "year": [
         "2003", "2004", "2005",
         "2006", "2007", "2008",
         "2009", "2010", "2011",
         "2012", "2013", "2014",
         "2015", "2016", "2017",
-        "2018", "2019", "2020",
-        "2021", "2022", "2023"
+        "2018"
     ],
     "month": [
         "01", "02", "03",
