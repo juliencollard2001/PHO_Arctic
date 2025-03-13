@@ -221,11 +221,6 @@ def plot2(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, extent = 
     lat = ds.latitude  
     # plot pour la fin d'hivers et la fin d'été vue d'en haut 
 
-    if 'depth' in Mar.coords:
-        print("Coordinate 'depth' exists in the dataset.")
-    else:
-        print("Coordinate 'depth' does not exist in the dataset.")
-
     fig, ax = plt.subplots(1, 2, subplot_kw={'projection': proj}, figsize=(18, 18))
 
     # Flatten the axes array for easier iteration
@@ -233,11 +228,11 @@ def plot2(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, extent = 
 
     # Plot the first subplot
     pc = ax[0].pcolormesh(lon, lat, Mar, transform=proj_og, cmap=colour1, vmin = vmin, vmax = vmax)
-    contour = ax[0].contour(lon, lat, contMar, levels=[0.15, 0.5, 0.85], colors=colour2, linewidths=1, transform=proj_og)
+    contour = ax[0].contour(lon, lat, contMar, levels=[15, 50, 85], colors=colour2, linewidths=1, transform=proj_og)
     ax[0].clabel(contour, inline=True, fontsize=8)
     ax[0].gridlines()
     ax[0].set_extent(extent, crs=proj_og)
-    ax[0].set_title(f'{name} at the end of Boreal Winter')
+    ax[0].set_title('End of Boreal Winter')
     ax[0].coastlines()
     ax[0].add_feature(cfeature.RIVERS)
 
@@ -245,15 +240,15 @@ def plot2(Mar,Sept,contMar,contSept,colour1,colour2, vmin ,vmax, name, extent = 
 
     # Plot the second subplot
     pc = ax[1].pcolormesh(lon, lat, Sept, transform=proj_og, cmap=colour1, vmin = vmin, vmax = vmax)
-    contour = ax[1].contour(lon, lat, contSept, levels=[0.15, 0.5, 0.85], colors=colour2, linewidths=1, transform=proj_og)
+    contour = ax[1].contour(lon, lat, contSept, levels=[15, 50, 85], colors=colour2, linewidths=1, transform=proj_og)
     ax[1].clabel(contour, inline=True, fontsize=8)
     ax[1].set_extent(extent, crs=proj_og)
-    ax[1].set_title(f'{name} at the end of Boreal Summer')
+    ax[1].set_title('End of Boreal Summer')
     ax[1].coastlines()
     ax[1].gridlines()
     ax[1].add_feature(cfeature.RIVERS)
 
-    fig.suptitle(f'{name} Comparison at the End of Boreal Winter and Summer', fontsize=16,x = 0.52, y = 0.71)
+    fig.suptitle(f'{name} comparison at the End of Boreal Winter and Summer', fontsize=16,x = 0.52, y = 0.71)
     
     # Define the position for the colorbar [left, bottom, width, height]
     cbar_ax = fig.add_axes([0.92, 0.32, 0.04, 0.35])  # Adjust these values as needed
@@ -313,11 +308,11 @@ def plot2quiv(Mar,Sept,contMar,contSept, U3, V3, U9 ,V9 ,colour1,vmin ,vmax, qui
 
     # Plot the first subplot
     pc = ax[0].pcolormesh(lon, lat, Mar, transform=proj_og, cmap=colour1, vmin = vmin, vmax = vmax)
-    contour = ax[0].contour(lon, lat, contMar*100, levels=[15, 50, 85], colors=colour2, linewidths=1, transform=proj_og)
+    contour = ax[0].contour(lon, lat, contMar, levels=[15, 50, 85], colors=colour2, linewidths=1, transform=proj_og)
     ax[0].clabel(contour, inline=True, fontsize=8)
     ax[0].gridlines()
     ax[0].set_extent(extent, crs=proj_og)
-    ax[0].set_title(f'{name} at the end of Boreal Winter')
+    ax[0].set_title('End of Boreal Winter')
     ax[0].coastlines()
     ax[0].add_feature(cfeature.RIVERS)
     
@@ -333,10 +328,10 @@ def plot2quiv(Mar,Sept,contMar,contSept, U3, V3, U9 ,V9 ,colour1,vmin ,vmax, qui
 
     # Plot the second subplot
     pc = ax[1].pcolormesh(lon, lat, Sept, transform=proj_og, cmap=colour1, vmin = vmin, vmax = vmax)
-    contour = ax[1].contour(lon, lat, contSept*100,levels=[15, 50, 85] , colors=colour2, linewidths=1, transform=proj_og)
+    contour = ax[1].contour(lon, lat, contSept,levels=[15, 50, 85] , colors=colour2, linewidths=1, transform=proj_og)
     ax[1].clabel(contour, inline=True, fontsize=8)
     ax[1].set_extent(extent, crs=proj_og)
-    ax[1].set_title(f'{name} at the end of Boreal Summer')
+    ax[1].set_title('End of Boreal Summer')
     ax[1].coastlines()
     ax[1].gridlines()
     ax[1].add_feature(cfeature.RIVERS)
@@ -350,7 +345,7 @@ def plot2quiv(Mar,Sept,contMar,contSept, U3, V3, U9 ,V9 ,colour1,vmin ,vmax, qui
         ax[1].streamplot(lon,lat, U9*Renorm9, V9new*Renorm9,  density= 2, color=colour3,transform=proj_og, linewidth=lw.values)
 
 
-    fig.suptitle(f'{name} Comparison at the End of Boreal Winter and Summer with ' + f'{namequiv}' + f' {streamlines}', fontsize=16,x = 0.52, y = 0.71)
+    fig.suptitle(f'{name} comparison at the End of Boreal Winter and Summer with ' + f'{namequiv}' + f' {streamlines}', fontsize=16,x = 0.52, y = 0.71)
     
     # Define the position for the colorbar [left, bottom, width, height]
     cbar_ax = fig.add_axes([0.92, 0.32, 0.04, 0.35])  # Adjust these values as needed
